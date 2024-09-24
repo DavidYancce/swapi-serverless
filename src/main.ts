@@ -33,10 +33,6 @@ export const handler: Handler = async (
   context: Context,
   callback: Callback,
 ) => {
-  // if (event.path === '/swagger') {
-  //   event.path = '/swagger/';
-  // }
-  console.log({ path: event.path });
   server = server ?? (await bootstrap());
   return server(event, context, callback);
 };
