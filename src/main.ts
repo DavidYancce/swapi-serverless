@@ -8,18 +8,21 @@ import { AppModule } from './app.module';
 let server: Handler;
 
 function setupSwagger(app: INestApplication) {
+  const stage = process.env.STAGE || 'dev';
+
   const options = new DocumentBuilder()
     .setTitle('SWAPI API')
     .setDescription('SWAPI API REST API documentation')
     .setVersion('1.0.0')
+    .addServer(`/${stage}`)
     .build();
+
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('swagger', app, document);
 }
 
 async function bootstrap(): Promise<Handler> {
   const app = await NestFactory.create(AppModule);
-  // app.setGlobalPrefix('api/v1');
 
   setupSwagger(app);
   await app.init();

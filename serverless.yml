@@ -5,8 +5,6 @@ plugins:
   - serverless-offline
 
 custom:
-  serverless-offline:
-    noPrependStageInUrl: true
   scriptable:
     hooks:
       before:deploy:deploy: "npm run build"
@@ -16,9 +14,10 @@ provider:
   name: aws
   region: us-east-1
   runtime: nodejs18.x
-  stage: dev
+  stage: ${opt:stage, 'dev'}
   environment:
     STARSHIP_TABLE_NAME: ${self:service}-${opt:stage, self:provider.stage}
+    STAGE: ${self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
