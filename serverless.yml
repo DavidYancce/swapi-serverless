@@ -1,11 +1,16 @@
 service: starships
 
 plugins:
+  - serverless-scriptable-plugin
   - serverless-offline
 
 custom:
   serverless-offline:
     noPrependStageInUrl: true
+  scriptable:
+    hooks:
+      before:deploy:deploy: "npm run build"
+      before:offline:start: "npm run build"
 
 provider:
   name: aws
