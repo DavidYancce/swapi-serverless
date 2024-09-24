@@ -1,0 +1,57 @@
+service: starships
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    noPrependStageInUrl: true
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs18.x
+  stage: dev
+  environment:
+    STARSHIP_TABLE_NAME: ${self:service}-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan  
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        - dynamodb:PutItem
+      Resource: 
+        Fn::Join:
+          - ''
+          - - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/"
+            - ${self:provider.environment.STARSHIP_TABLE_NAME}
+
+functions:
+  main:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: ANY
+          path: /
+      - http:
+          method: ANY
+          path: '{proxy+}'
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.STARSHIP_TABLE_NAME}
